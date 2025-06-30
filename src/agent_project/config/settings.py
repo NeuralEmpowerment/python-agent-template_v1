@@ -459,30 +459,24 @@ class AppSettings(BaseSettings):
                     "Check permissions or set STORAGE_LOCAL_PATH to a writable directory."
                 )
 
-        # Validate database directory for SQLite
-        if self.database.url.startswith("sqlite:"):
+        # Validate database directory for SQLite (but skip in-memory and testing databases)
+        if self.database.url.startswith("sqlite:") and not self.database.url.startswith("sqlite:///:memory:"):
             from pathlib import Path
 
             # Extract path from SQLite URL
             db_path = self.database.url.replace("sqlite:///", "")
-            db_dir = Path(db_path).parent
-            try:
-                db_dir.mkdir(parents=True, exist_ok=True)
-            except PermissionError:
-                raise ValueError(
-                    f"Cannot create database directory '{db_dir}'. "
-                    "Check permissions or set DATABASE_URL to a writable location."
-                )
+            if db_path and db_path != ":memory:":  # Skip in-memory databases
+                db_dir = Path(db_path).parent
+                try:
+                    db_dir.mkdir(parents=True, exist_ok=True)
+                except PermissionError:
+                    raise ValueError(
+                        f"Cannot create database directory '{db_dir}'. "
+                        "Check permissions or set DATABASE_URL to a writable location."
+                    )
 
-        # Test actual database connectivity (works with any configured database type)
-        try:
-            from src.agent_project.infrastructure.database.sqlalchemy_config import (
-                test_database_connectivity,
-            )
-
-            test_database_connectivity()
-        except Exception as e:
-            raise ValueError(f"Database connectivity test failed: {e}")
+        # Note: Database connectivity testing is moved to a separate initialization step
+        # to avoid circular dependencies during settings loading
 
     def get_startup_info(self) -> Dict[str, Any]:
         """Get startup information for logging."""
@@ -532,3 +526,33 @@ def get_settings() -> AppSettings:
         AppSettings: The application settings
     """
     return AppSettings()
+
+
+def reset_settings_cache() -> None:
+    """
+    Reset the settings cache.
+    
+    This is useful for testing when environment variables might change
+    between test cases.
+    """
+    get_settings.cache_clear()
+
+
+def test_database_connectivity_with_settings() -> None:
+    """
+    Test database connectivity using the current settings.
+    
+    This function is separate from settings validation to avoid circular dependencies.
+    Call this after settings are loaded to verify database connectivity.
+    
+    Raises:
+        RuntimeError: If database connectivity test fails
+    """
+    try:
+        from src.agent_project.infrastructure.database.sqlalchemy_config import (
+            test_database_connectivity,
+        )
+        
+        test_database_connectivity()
+    except Exception as e:
+        raise RuntimeError(f"Database connectivity test failed: {e}") from e

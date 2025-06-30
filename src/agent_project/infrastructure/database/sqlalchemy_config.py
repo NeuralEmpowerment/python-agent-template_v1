@@ -3,8 +3,7 @@
 from typing import Any
 
 from sqlalchemy import Engine, create_engine, text
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import Session, sessionmaker, declarative_base
 
 from src.agent_project.config.settings import get_settings
 
@@ -71,16 +70,29 @@ def initialize_database(config: DatabaseConfig | None = None) -> None:
     """Initialize the database with the given configuration."""
     global _engine, _session_factory
 
-    if config:
-        _engine = create_engine(config.database_url, **config.kwargs)
-        _session_factory = sessionmaker(bind=_engine)
-    else:
-        # Use settings-based configuration
-        _engine = get_engine()
-        _session_factory = get_session_factory()
+    try:
+        if config:
+            _engine = create_engine(config.database_url, **config.kwargs)
+            _session_factory = sessionmaker(bind=_engine)
+        else:
+            # Use settings-based configuration
+            _engine = get_engine()
+            _session_factory = get_session_factory()
 
-    # Create tables
-    create_tables()
+        # Create tables
+        create_tables()
+    except Exception as e:
+        # Reset global state on failure
+        _engine = None
+        _session_factory = None
+        raise RuntimeError(f"Failed to initialize database: {e}") from e
+
+
+def reset_database_connections() -> None:
+    """Reset the global database connections and cache."""
+    global _engine, _session_factory
+    _engine = None
+    _session_factory = None
 
 
 def test_database_connectivity() -> None:
@@ -89,6 +101,10 @@ def test_database_connectivity() -> None:
         engine = get_engine()
         with engine.connect() as connection:
             # Simple test query that works on all databases
-            connection.execute(text("SELECT 1"))
+            result = connection.execute(text("SELECT 1"))
+            # Verify we can fetch the result
+            value = result.scalar()
+            if value != 1:
+                raise RuntimeError("Database query returned unexpected result")
     except Exception as e:
         raise RuntimeError(f"Database connectivity test failed: {e}") from e

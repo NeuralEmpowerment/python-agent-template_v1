@@ -6,6 +6,7 @@ from typing import Dict
 # Default environment variables
 ENV_VARS: Dict[str, str] = {
     "OPENAI_API_KEY": "your-api-key-here",
+    "DATABASE_URL": "sqlite:///./data/agents.db",
     "OBJC_DISABLE_INITIALIZE_FORK_SAFETY": "YES",
 }
 

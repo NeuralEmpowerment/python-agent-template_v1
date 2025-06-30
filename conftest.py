@@ -22,4 +22,17 @@ def setup_test_environment():
     
     # Restore original environment
     os.environ.clear()
-    os.environ.update(original_env) 
+    os.environ.update(original_env)
+
+
+@pytest.fixture(autouse=True)
+def reset_caches():
+    """Reset caches before each test to ensure clean state."""
+    try:
+        from src.agent_project.config.settings import reset_settings_cache
+        from src.agent_project.infrastructure.database.sqlalchemy_config import reset_database_connections
+        reset_settings_cache()
+        reset_database_connections()
+    except ImportError:
+        # In case the import fails during early test runs
+        pass 
