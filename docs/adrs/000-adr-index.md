@@ -58,10 +58,13 @@ This index serves as your entry point to understanding the architectural decisio
 3. **Application Patterns:** [ADR-003: Application Layer Patterns](003-application-layer-patterns.md)
    - Understand how ZenML and application layers work together
 
-4. **Development Setup:** [ADR-005: Project Development Standards](005-project-development-standards.md)
+4. **Testing Setup:** [ADR-007: Test Environment Configuration](007-test-environment-configuration.md)
+   - Learn the test environment and fixture patterns
+
+5. **Development Setup:** [ADR-005: Project Development Standards](005-project-development-standards.md)
    - Learn the development workflow and commands
 
-5. **File Organization:** [ADR-004: File Organization Standards](004-file-organization-standards.md)
+6. **File Organization:** [ADR-004: File Organization Standards](004-file-organization-standards.md)
    - Understand how code is structured and named
 
 ### 🏗️ Architect Review Path
@@ -71,9 +74,9 @@ This index serves as your entry point to understanding the architectural decisio
 
 1. [ADR-001: System Architecture Overview](001-system-architecture-overview.md)
 2. [ADR-002: Domain-Driven Design Architecture](002-domain-driven-design-architecture.md)
-3. [ADR-007: Entity-First Database Design](007-entity-first-database-design.md)
-4. [ADR-003: Application Layer Patterns](003-application-layer-patterns.md)
-5. [ADR-008: Comprehensive Testing Strategy](008-comprehensive-testing-strategy.md)
+3. [ADR-003: Application Layer Patterns](003-application-layer-patterns.md)
+4. [ADR-007: Test Environment Configuration](007-test-environment-configuration.md)
+5. [ADR-008: Entity-First Database Design](008-entity-first-database-design.md)
 
 ### 🔧 Implementation-Focused Path
 [↑ Back to Top](#table-of-contents)
@@ -83,8 +86,9 @@ This index serves as your entry point to understanding the architectural decisio
 1. [ADR-004: File Organization Standards](004-file-organization-standards.md)
 2. [ADR-005: Project Development Standards](005-project-development-standards.md)
 3. [ADR-006: Configuration Management](006-configuration-management.md)
-4. [ADR-009: Code Quality Standards](009-code-quality-standards.md)
-5. [ADR-008: Comprehensive Testing Strategy](008-comprehensive-testing-strategy.md)
+4. [ADR-007: Test Environment Configuration](007-test-environment-configuration.md)
+5. [ADR-010: Code Quality Standards](010-code-quality-standards.md)
+6. [ADR-009: Comprehensive Testing Strategy](009-comprehensive-testing-strategy.md)
 
 [↑ Back to Top](#table-of-contents)
 
@@ -113,25 +117,26 @@ Standards and patterns for development workflow and code organization.
 | [005](005-project-development-standards.md) | Project Development Standards | 🚧 Planned | Setup scripts, development commands, and workflow |
 | [006](006-configuration-management.md) | Configuration Management | 🚧 Planned | Centralized settings and configuration patterns |
 
-### 🗄️ Data & Persistence (007)
+### 🗄️ Data & Persistence (008)
 [↑ Back to Top](#table-of-contents)
 
 Database design and data persistence strategies.
 
 | ADR | Title | Status | Summary |
 |-----|-------|--------|---------|
-| [007](007-entity-first-database-design.md) | Entity-First Database Design | 🚧 Planned | Domain entities as source of truth for schema |
+| [008](008-entity-first-database-design.md) | Entity-First Database Design | 🚧 Planned | Domain entities as source of truth for schema |
 
-### ✅ Quality & Process (008-010)
+### ✅ Quality & Process (007, 009-010)
 [↑ Back to Top](#table-of-contents)
 
 Quality assurance standards and development processes.
 
 | ADR | Title | Status | Summary |
 |-----|-------|--------|---------|
-| [008](008-comprehensive-testing-strategy.md) | Comprehensive Testing Strategy | 🚧 Planned | Testing approaches, tools, and quality assurance |
-| [009](009-code-quality-standards.md) | Code Quality Standards | 🚧 Planned | Linting, formatting, and code quality tools |
-| [010](010-adr-organization-standards.md) | ADR Organization Standards | 🚧 Planned | ADR maintenance, templates, and governance |
+| [007](007-test-environment-configuration.md) | Test Environment Configuration | ✅ Accepted | Comprehensive test fixture management and CI fixes |
+| [009](009-comprehensive-testing-strategy.md) | Comprehensive Testing Strategy | 🚧 Planned | Testing approaches, tools, and quality assurance |
+| [010](010-code-quality-standards.md) | Code Quality Standards | 🚧 Planned | Linting, formatting, and code quality tools |
+| [011](011-adr-organization-standards.md) | ADR Organization Standards | 🚧 Planned | ADR maintenance, templates, and governance |
 
 [↑ Back to Top](#table-of-contents)
 
@@ -149,23 +154,28 @@ Quality assurance standards and development processes.
 - [ADR-008: Comprehensive Testing Strategy](008-comprehensive-testing-strategy.md)
 
 **Database & Persistence:**
-- [ADR-007: Entity-First Database Design](007-entity-first-database-design.md)
+- [ADR-008: Entity-First Database Design](008-entity-first-database-design.md)
+
+**Testing & Quality:**
+- [ADR-007: Test Environment Configuration](007-test-environment-configuration.md)
+- [ADR-009: Comprehensive Testing Strategy](009-comprehensive-testing-strategy.md)
 
 **Development Tools:**
 - [ADR-005: Project Development Standards](005-project-development-standards.md)
-- [ADR-008: Comprehensive Testing Strategy](008-comprehensive-testing-strategy.md)
+- [ADR-010: Code Quality Standards](010-code-quality-standards.md)
 
 ### 📊 By Status
 [↑ Back to Top](#table-of-contents)
 
-**✅ Accepted (4):**
+**✅ Accepted (5):**
 - ADR-000: Architecture Decision Records Index
 - ADR-001: System Architecture Overview
 - ADR-002: Domain-Driven Design Architecture  
 - ADR-003: Application Layer Patterns
+- ADR-007: Test Environment Configuration
 
-**🚧 Planned (7):**
-- ADR-004 through ADR-010 are planned for future implementation
+**🚧 Planned (6):**
+- ADR-004, ADR-005, ADR-006, ADR-008, ADR-009, ADR-010 are planned for future implementation
 
 **📁 Archived:**
 - See `/archive/` directory for superseded ADRs from previous structure

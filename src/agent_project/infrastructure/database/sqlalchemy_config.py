@@ -83,8 +83,8 @@ def initialize_database(config: DatabaseConfig | None = None) -> None:
     create_tables()
 
 
-def test_database_connectivity() -> None:
-    """Test database connectivity by attempting a simple query."""
+def check_database_connectivity() -> None:
+    """Check database connectivity by attempting a simple query."""
     try:
         engine = get_engine()
         with engine.connect() as connection:

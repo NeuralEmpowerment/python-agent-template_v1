@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from src.agent_project.infrastructure.database.sqlalchemy_config import (
     DatabaseConfig,
+    check_database_connectivity,
     create_tables,
     drop_tables,
     get_engine,
@@ -12,7 +13,6 @@ from src.agent_project.infrastructure.database.sqlalchemy_config import (
     get_session_factory,
     initialize_database,
     reset_database,
-    test_database_connectivity,
 )
 
 
@@ -35,52 +35,68 @@ class TestDatabaseConfig:
 class TestEngineAndSession:
     """Tests for engine and session management."""
 
-    def test_get_engine(self):
+    def test_get_engine(self, test_database_config, test_database_reset):
         """Test getting database engine."""
+        # Initialize with test configuration
+        initialize_database(test_database_config)
         engine = get_engine()
         assert isinstance(engine, Engine)
 
-    def test_get_session_factory(self):
+    def test_get_session_factory(self, test_database_config, test_database_reset):
         """Test getting session factory."""
+        # Initialize with test configuration
+        initialize_database(test_database_config)
         factory = get_session_factory()
         assert factory is not None
 
-    def test_get_session(self):
+    def test_get_session(self, test_database_config, test_database_reset):
         """Test getting database session."""
+        # Initialize with test configuration
+        initialize_database(test_database_config)
         session = get_session()
         assert isinstance(session, Session)
         session.close()
 
-    def test_database_connectivity(self):
+    def test_database_connectivity(self, test_database_config, test_database_reset):
         """Test database connectivity."""
+        # Initialize with test configuration
+        initialize_database(test_database_config)
         # Should not raise any exceptions
-        test_database_connectivity()
+        check_database_connectivity()
 
 
 class TestDatabaseManagement:
     """Tests for database table management."""
 
-    def test_create_tables(self):
+    def test_create_tables(self, test_database_config, test_database_reset):
         """Test creating database tables."""
+        # Initialize with test configuration
+        initialize_database(test_database_config)
         # Should not raise any exceptions
         create_tables()
 
-    def test_drop_tables(self):
+    def test_drop_tables(self, test_database_config, test_database_reset):
         """Test dropping database tables."""
+        # Initialize with test configuration
+        initialize_database(test_database_config)
         # Should not raise any exceptions
         drop_tables()
 
-    def test_reset_database(self):
+    def test_reset_database(self, test_database_config, test_database_reset):
         """Test resetting database."""
+        # Initialize with test configuration
+        initialize_database(test_database_config)
         # Should not raise any exceptions
         reset_database()
 
-    def test_initialize_database_without_config(self):
+    def test_initialize_database_without_config(self, test_database_config, test_database_reset):
         """Test database initialization without config."""
-        # Should not raise any exceptions
+        # First set up test configuration, then test without passing config
+        initialize_database(test_database_config)
+        # Should not raise any exceptions - will use already initialized engine
         initialize_database()
 
-    def test_initialize_database_with_config(self):
+    def test_initialize_database_with_config(self, test_database_reset):
         """Test database initialization with config."""
         config = DatabaseConfig(database_url="sqlite:///:memory:")
         initialize_database(config)
@@ -94,14 +110,13 @@ class TestDatabaseManagement:
 class TestDatabaseIntegration:
     """Integration tests for database functionality."""
 
-    def test_full_database_lifecycle(self):
+    def test_full_database_lifecycle(self, test_database_config, test_database_reset):
         """Test complete database lifecycle."""
-        # Initialize with in-memory database
-        config = DatabaseConfig(database_url="sqlite:///:memory:")
-        initialize_database(config)
+        # Initialize with test configuration
+        initialize_database(test_database_config)
 
         # Test connectivity
-        test_database_connectivity()
+        check_database_connectivity()
 
         # Test session usage
         with get_session() as session:

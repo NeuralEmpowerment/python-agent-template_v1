@@ -1,0 +1,223 @@
+name: 🔍 Quality Assurance Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request: # Any PR will trigger the pipeline
+    # branches: [main]
+
+jobs:
+  setup:
+    name: 🏗️ Setup & Dependencies
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # NOTE: To add Python 3.12, change to: ["3.11", "3.12"]
+        python-version: ["3.11"]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 📦 Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: 🔧 Install dependencies
+        run: poetry install
+
+      - name: 💾 Save Poetry cache
+        uses: actions/cache/save@v4
+        with:
+          path: .venv
+          key: poetry-${{ matrix.python-version }}-${{ hashFiles('poetry.lock') }}
+          enableCrossOsArchive: false
+
+  formatting:
+    name: 🎨 Code Formatting
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # NOTE: To add Python 3.12, change to: ["3.11", "3.12"]
+        python-version: ["3.11"]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 🎨 Check code formatting
+        run: make format
+
+  linting:
+    name: 🔍 Code Linting
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # NOTE: To add Python 3.12, change to: ["3.11", "3.12"]
+        python-version: ["3.11"]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 🔍 Lint with auto-fixes
+        run: make lint-fix
+
+  type-checking:
+    name: 🔎 Type Checking
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # NOTE: To add Python 3.12, change to: ["3.11", "3.12"]
+        python-version: ["3.11"]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 🔎 Run type checking
+        run: make typecheck
+
+  domain-validation:
+    name: 🏛️ Domain Layer Validation
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # NOTE: To add Python 3.12, change to: ["3.11", "3.12"]
+        python-version: ["3.11"]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 🏛️ Validate domain layer purity
+        run: make validate-domain
+
+  unit-tests:
+    name: 🧪 Unit Tests
+    needs: [setup]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # NOTE: To add Python 3.12, change to: ["3.11", "3.12"]
+        python-version: ["3.11"]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 🧪 Run unit tests with coverage
+        run: poetry run pytest tests/unit/ -v --cov=src/agent_project --cov-report=xml --cov-report=term-missing
+
+      - name: 📊 Upload unit test coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-coverage-${{ matrix.python-version }}
+          path: coverage.xml
+
+  integration-tests:
+    name: 🔗 Integration Tests
+    needs: [setup]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # NOTE: To add Python 3.12, change to: ["3.11", "3.12"]
+        python-version: ["3.11"]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 🔗 Run integration tests
+        run: poetry run pytest tests/integration/ -v
+
+  infrastructure-tests:
+    name: 🏗️ Infrastructure Tests
+    needs: [setup]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # NOTE: To add Python 3.12, change to: ["3.11", "3.12"]
+        python-version: ["3.11"]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 🏗️ Run infrastructure tests
+        run: poetry run pytest tests/infrastructure/ -v
+
+  coverage-report:
+    name: 📊 Coverage Report
+    needs: [unit-tests, integration-tests, infrastructure-tests]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # NOTE: To add Python 3.12, change to: ["3.11", "3.12"]
+        python-version: ["3.11"]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python Environment
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 📊 Generate comprehensive coverage report
+        run: poetry run pytest tests/ -v --cov=src/agent_project --cov-report=xml --cov-report=html --cov-report=term-missing
+
+      - name: 📤 Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: comprehensive
+          name: codecov-python-${{ matrix.python-version }}
+          fail_ci_if_error: false
+
+      - name: 📋 Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ matrix.python-version }}
+          path: |
+            coverage.xml
+            htmlcov/
