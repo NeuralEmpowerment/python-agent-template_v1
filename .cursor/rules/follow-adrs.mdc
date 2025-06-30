@@ -1,0 +1,6 @@
+---
+description: Be aware of the ADRs which have been made
+globs: 
+alwaysApply: false
+---
+Use the Architecture Decision Records to drive research, planning and quality assurance tasks.

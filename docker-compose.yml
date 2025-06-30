@@ -1,0 +1,58 @@
+services:
+  # Agent Template API service
+  agent-api:
+    build: .
+    container_name: agent-template-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./src:/app/src
+    environment:
+      # API settings
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+      - HOST=0.0.0.0
+      - PORT=8000
+      
+      # Database settings
+      - DATABASE_URL=sqlite:///./data/agents.db
+      
+      # Storage settings
+      - STORAGE_BACKEND=local
+      - STORAGE_LOCAL_PATH=./data/uploads
+      
+      # OpenAI settings (use secrets in production)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      
+      # Security settings
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis for event bus (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: agent-template-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  redis-data:
+    driver: local

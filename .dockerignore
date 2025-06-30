@@ -1,0 +1,58 @@
+# Version control
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov/
+
+# Virtual environments
+.env
+.venv
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation (keep README.md for Docker build)
+docs/
+notebooks/
+PROJECT-PLAN_*.md
+DEVELOPMENT.md
+QUICK-START.md
+GOTCHAS.md
+ISSUES.md
+SETUP.md
+
+# Development files
+tests/
+.pytest_cache/
+logs/*.log
+
+# Build artifacts
+dist/
+build/
+*.egg-info
+
+# Project specific
+data/
+tools/
+simple-tasks.toml
+PROJECT-PLAN_*.md 

@@ -1,0 +1,102 @@
+[tool.poetry]
+name = "agent-template"
+version = "0.1.0"
+description = "A clean, reusable agent project template with DDD architecture"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+
+# Core web framework and async support
+fastapi = "^0.110.0"
+uvicorn = "^0.30.0"
+python-multipart = "^0.0.9"
+streamlit = "^1.32.2"
+
+# Data validation and settings
+pydantic = "^2.6.4"
+pydantic-settings = "^2.0.0"
+
+# Agent and LLM dependencies
+openai = "^1.14.2"
+anthropic = "^0.25.0"
+langchain-core = "^0.1.0"
+
+# Infrastructure and persistence
+redis = "^5.0.0"  # Redis client with connection pooling
+aioredis = "^2.0.1"  # Async Redis client
+supabase = "^2.15.0"  # Optional cloud backend
+sqlalchemy = "^2.0.0"  # Database ORM
+
+# Utilities and logging
+loguru = "^0.7.2"
+httpx = "^0.27.0"  # HTTP client for external APIs
+rich = "^13.0.0"  # Rich terminal output for CLI
+
+[tool.poetry.group.dev.dependencies]
+# Code quality and formatting
+black = "^24.3.0"
+ruff = "^0.2.2"
+mypy = "^1.8.0"
+
+# Testing framework
+pytest = "^7.4.4"
+pytest-cov = "^6.1.1"
+pytest-asyncio = "^0.21.0"
+pytest-redis = "^3.0.2"  # Redis testing utilities
+testcontainers = "^3.7.1"  # Docker containers for tests
+
+# Development tools
+jupyter = "^1.0.0"  # For example notebooks
+ipykernel = "^6.25.0"  # Jupyter kernel support
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+explicit_package_bases = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=src --cov-report=term-missing --cov-config=pyproject.toml"
+filterwarnings = [
+    "ignore::DeprecationWarning:passlib.*",
+    "ignore::DeprecationWarning:passlib.utils"
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/.venv/*",
+    "*/venv/*"
+]
+
+[tool.coverage.report]
+# Include all Python files in coverage report, even if not imported
+show_missing = true
+skip_empty = true
+# This is the key setting - it forces coverage to discover all files
+include_namespace_packages = true

@@ -1,0 +1,221 @@
+"""Application configuration using Pydantic settings.
+
+This module serves as the central configuration point for the entire application.
+All settings are exported through this module, though they may be organized into
+different classes for better modularity.
+"""
+
+from pathlib import Path
+from typing import Dict, Any, List, Optional
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class CoreSettings(BaseSettings):
+    """Core application settings."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="allow",
+    )
+
+    # Application Configuration
+    APP_ENV: str = "development"
+    LOG_LEVEL: str = "DEBUG"
+
+    # Paths
+    BASE_DIR: Path = Path(__file__).parent.parent
+    LOGS_DIR: Path = Path(__file__).parent.parent / "logs"
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        # Ensure logs directory exists
+        self.LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+
+class AISettings(BaseSettings):
+    """AI-related settings including OpenAI and Huggingface."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="allow",
+    )
+
+    # OpenAI API
+    OPENAI_MODEL_ID: str = "gpt-4o-mini"
+    OPENAI_API_KEY: Optional[str] = None
+
+    # Huggingface API
+    HUGGINGFACE_ACCESS_TOKEN: Optional[str] = None
+
+    @property
+    def OPENAI_MAX_TOKEN_WINDOW(self) -> int:
+        official_max_token_window: Dict[str, int] = {
+            "gpt-3.5-turbo": 16385,
+            "gpt-4-turbo": 128000,
+            "gpt-4o": 128000,
+            "gpt-4o-mini": 128000,
+        }
+        return int(official_max_token_window.get(self.OPENAI_MODEL_ID, 128000) * 0.90)
+
+
+class StorageSettings(BaseSettings):
+    """Storage-related settings including S3 and local storage."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="allow",
+    )
+
+    # S3 Storage Settings
+    S3_ACCESS_KEY: Optional[str] = None
+    S3_SECRET_KEY: Optional[str] = None
+    S3_REGION: str = "local"
+    S3_ENDPOINT: Optional[str] = None
+
+    # Audio Files
+    AUDIO_FILES_DIR: str = "./uploads"
+    MAX_AUDIO_SIZE_MB: int = 25
+    ALLOWED_AUDIO_FORMATS: List[str] = ["mp3", "wav", "m4a", "ogg"]
+
+
+class SupabaseSettings(BaseSettings):
+    """Supabase-related settings."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="allow",
+    )
+
+    SUPABASE_URL: Optional[str] = None
+    SUPABASE_KEY: Optional[str] = None
+    SUPABASE_JWT_SECRET: Optional[str] = None
+
+    @property
+    def supabase_url(self) -> str:
+        return self.SUPABASE_URL or ""
+
+    @property
+    def supabase_key(self) -> str:
+        return self.SUPABASE_KEY or ""
+
+    @property
+    def supabase_jwt_secret(self) -> str:
+        return self.SUPABASE_JWT_SECRET or ""
+
+
+class ZenMLSettings(BaseSettings):
+    """ZenML-related settings."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="allow",
+    )
+
+    ZENML_STORE_URL: str = "sqlite:///zenml.db"
+    ZENML_SERVER_HOST: str = "127.0.0.1"
+    ZENML_SERVER_PORT: int = 8237
+
+
+class APISettings(BaseSettings):
+    """FastAPI application settings."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        env_prefix="API_",
+        extra="allow",
+    )
+
+    # API configuration
+    API_TITLE: str = "Audio File API"
+    API_DESCRIPTION: str = "API for managing audio files"
+    API_VERSION: str = "0.1.0"
+
+    # CORS settings
+    ALLOW_ORIGINS: List[str] = ["*"]
+    ALLOW_METHODS: List[str] = ["*"]
+    ALLOW_HEADERS: List[str] = ["*"]
+
+    # File storage settings
+    FILE_STORAGE_PATH: str = "./data/files"
+    DB_STORAGE_PATH: str = "./data/db.sqlite"
+
+
+class StreamlitSettings(BaseSettings):
+    """Streamlit application settings."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        env_prefix="STREAMLIT_",
+        extra="allow",
+    )
+
+    # API configuration
+    API_BASE_URL: str = "http://localhost:8000/api"
+    API_HEALTH_URL: str = "http://localhost:8000/health"
+
+    # Upload configuration
+    ALLOWED_FILE_TYPES: List[str] = ["mp3", "wav", "ogg", "m4a", "flac"]
+
+    # Metadata examples
+    DEFAULT_METADATA_EXAMPLE: Dict[str, str] = {
+        "title": "Example Audio File",
+        "artist": "Example Artist",
+        "album": "Example Album",
+        "genre": "Example Genre",
+        "notes": "These are example notes",
+    }
+
+    DEFAULT_BATCH_METADATA_EXAMPLE: List[Dict[str, Any]] = [
+        {
+            "filename": "file1.mp3",
+            "metadata": {"title": "Song 1", "artist": "Artist 1"},
+        },
+        {
+            "filename": "file2.mp3",
+            "metadata": {"title": "Song 2", "artist": "Artist 2"},
+        },
+    ]
+
+
+class Settings:
+    """Main settings class that combines all settings modules."""
+
+    def __init__(self) -> None:
+        self.core = CoreSettings()
+        self.ai = AISettings()
+        self.storage = StorageSettings()
+        self.supabase = SupabaseSettings()
+        self.zenml = ZenMLSettings()
+        self.api = APISettings()
+        self.streamlit = StreamlitSettings()
+
+
+# Create a single settings instance that combines all settings
+settings = Settings()
+
+
+def get_settings() -> Settings:
+    """Get the global settings instance."""
+    return settings
+
+
+def get_api_settings() -> APISettings:
+    """Get the FastAPI application settings."""
+    return settings.api
+
+
+def get_streamlit_settings() -> StreamlitSettings:
+    """Get the Streamlit application settings."""
+    return settings.streamlit
