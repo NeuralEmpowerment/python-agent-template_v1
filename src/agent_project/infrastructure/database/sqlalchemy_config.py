@@ -3,7 +3,7 @@
 from typing import Any
 
 from sqlalchemy import Engine, create_engine, text
-from sqlalchemy.orm import Session, sessionmaker, declarative_base
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
 from src.agent_project.config.settings import get_settings
 

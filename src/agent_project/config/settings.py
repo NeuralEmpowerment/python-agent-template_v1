@@ -531,7 +531,7 @@ def get_settings() -> AppSettings:
 def reset_settings_cache() -> None:
     """
     Reset the settings cache.
-    
+
     This is useful for testing when environment variables might change
     between test cases.
     """
@@ -541,10 +541,10 @@ def reset_settings_cache() -> None:
 def test_database_connectivity_with_settings() -> None:
     """
     Test database connectivity using the current settings.
-    
+
     This function is separate from settings validation to avoid circular dependencies.
     Call this after settings are loaded to verify database connectivity.
-    
+
     Raises:
         RuntimeError: If database connectivity test fails
     """
@@ -552,7 +552,7 @@ def test_database_connectivity_with_settings() -> None:
         from src.agent_project.infrastructure.database.sqlalchemy_config import (
             test_database_connectivity,
         )
-        
+
         test_database_connectivity()
     except Exception as e:
         raise RuntimeError(f"Database connectivity test failed: {e}") from e

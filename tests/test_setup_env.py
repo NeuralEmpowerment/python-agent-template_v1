@@ -2,7 +2,15 @@
 
 import os
 
+import pytest
+
 from scripts.setup_env import ENV_VARS, setup_environment
+
+
+@pytest.fixture
+def test_data_dir(tmp_path):
+    """Create a temporary directory for testing."""
+    return tmp_path
 
 
 def test_setup_environment_creates_env_file(test_data_dir):
